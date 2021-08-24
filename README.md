@@ -5,6 +5,9 @@ I have not evaluated or accounted for docker security in this example project. I
 
 Normally I'd have the ingest and analytics portions in separate git repos (because there could be multiple analytics projects stemming from this one ingestion). For the sake of sending one complete project, I've kept everything together.
 
+To view logs from the ingestion server
+`docker logs -f flightPipeline`
+
 # Steps taken
 ## Ingest
 1. Setup a Spark notebook environment to expolore the data.
@@ -14,9 +17,8 @@ Normally I'd have the ingest and analytics portions in separate git repos (becau
 5. Translate the notebook (step 3) into a more stable python file.
 
 ## Analytics
-1. Create a notebook to explore solving the analytical questions provided.
-2. Convert the notebook to a normal python file.
-3. TODO
+1. Add on to the pre-existing notebook to explore solving the analytical questions.
+2. Convert the new notebook cells to a normal python file and added them to the previous file
 
 ## How to run
 
@@ -25,11 +27,30 @@ Install [Docker](https://docs.docker.com/get-docker/)
 ### MacOS/Linux
 In terminal:
 `cd ingestion_pipeline`
+
 `make build`
+
 `make run`
+
+Then drop CSV files into /ingestion_pipeline/landing_zone - wait one minute for it to begin processing.
+To change new data polling frequency, edit /ingestion_pipeline/cronschedule.crontab   (NOTE: There MUST be a blank line at the end of the file - this is an issue with crontab)
+
+To run hourly change to:
+`0 * * * * python3 /opt/application/src/main.py >> /var/log/flight_pipeline.log`
+
 
 ### Other OS
 Run the docker steps listed in the `Makefile`
+
+## View Notebooks
+
+Install [Docker](https://docs.docker.com/get-docker/)
+
+### MacOS/Linux
+In terminal:
+`cd notebooks`
+
+`make start`
 
 ## Assignment:
 The files contain comma-separated values of the flight delays files contain historical data for airline flight delays. The columns in the files match the following schema:

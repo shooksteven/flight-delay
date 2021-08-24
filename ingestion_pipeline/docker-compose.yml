@@ -31,8 +31,6 @@ services:
     container_name: flightPipeline
     volumes:
       - ./landing_zone:/opt/application/data/landing_zone
-    build:
-      args:
-        DATA_DIR: /opt/application/data
     environment:
       - SPARK_MASTER=spark://spark-master:7077
+      - DATA_DIR=/opt/application/data

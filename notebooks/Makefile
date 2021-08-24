@@ -15,7 +15,7 @@ start:
 
 	@echo Copying data and notebooks to server...
 	@docker cp ../original_data/ pysparkNotebook:/home/jovyan/work
-	@docker cp ../notebooks/'Flight-Delay CSV to Parquet.ipynb' pysparkNotebook:/home/jovyan/work/
+	@docker cp ../notebooks/'Flight-Delay Exploration.ipynb' pysparkNotebook:/home/jovyan/work/
 
 	@echo Starting pysparkNotebook...
 	@docker start pysparkNotebook
