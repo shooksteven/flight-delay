@@ -18,7 +18,7 @@ if __name__ == "__main__":
     sparkMasterURL = os.getenv("SPARK_MASTER")
 
     if None in [dataDir, sparkMasterURL] :
-        sys.exit("Please specify environment variables:\nLANDING_ZONE_DIR, ARCHIVE_DIR, PARQUET_DIR")
+        sys.exit("Please specify environment variables:\nDATA_DIR\tSPARK_MASTER")
 
     # Check for new CSV files in the landing zone directory
     landingZoneDir = os.path.join(dataDir, "landing_zone")
@@ -38,9 +38,8 @@ if __name__ == "__main__":
         os.mkdir(processingDir)
 
     for file in newFiles:
-        shutil.move(os.path.join(landingZoneDir, file), processingDir)
-
-    # Note: Here I would also archive the original data  somewhere- just in case :) 
+        shutil.move(str(file), processingDir)
+        # Note: Here I would also compress/archive the original data  somewhere - just in case :) 
 
     # Create Spark session & context
     spark = SparkSession.builder.master(sparkMasterURL).getOrCreate()
@@ -80,7 +79,8 @@ if __name__ == "__main__":
                 StructField("LateAircraftDelay",StringType(),True)
     ])
 
-    flightDF = spark.read.csv(landingZoneDir, header="True", sep=",", inferSchema="False", nullValue="NA", schema=schema)
+    # Convert and append all CSV files to parquet
+    flightDF = spark.read.csv(os.path.join(processingDir, "*.csv"), header="True", sep=",", inferSchema="False", nullValue="NA", schema=schema)
     columnList = ["Year", "Month", "DayofMonth", "DepTime", "UniqueCarrier", "FlightNum", "ArrDelay", "Origin", "Dest"]
     flightDF = flightDF.select(columnList)
 
@@ -111,8 +111,9 @@ if __name__ == "__main__":
     ])
 
     # Could use partitions here...
-    parquetDF = spark.read.parquet(parquetPath, schema=schema)
-    spark.sql("CREATE TABLE IF NOT EXISTS flights USING parquet OPTIONS (path \"flights.parquet\")")
+    # parquetDF = spark.read.parquet(parquetPath).schema(schema)
+    query = "CREATE TABLE IF NOT EXISTS flights USING parquet OPTIONS (path \"" + parquetPath + "\")"
+    spark.sql(query)
 
     # 1. Compute the average arrdelay of flights landing in LAX
     logging.info("Average arrdelay of flights landing in LAX\n" + 

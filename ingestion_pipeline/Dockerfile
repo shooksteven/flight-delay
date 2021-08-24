@@ -8,7 +8,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk
 
 WORKDIR /opt/application/
 
-RUN mkdir data data/archive data/parquet
+RUN mkdir data data/parquet
 
 COPY src/ src/
 RUN pip3 install -r src/requirements.txt
